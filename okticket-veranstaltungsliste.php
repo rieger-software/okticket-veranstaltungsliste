@@ -2,7 +2,7 @@
 /**
  * Plugin Name: OKTicket Veranstaltungsliste
  * Description: Ruft Veranstaltungsdaten lesend aus der OKTicket-API ab.
- * Version: 0.2.3
+ * Version: 0.2.4
  * Author: okticket.de
  * Update URI: https://github.com/rieger-software/okticket-veranstaltungsliste/
  * Requires at least: 6.4
@@ -38,6 +38,7 @@ final class Altmuehlbuehne_OKTicket_Veranstaltungsliste {
     private const EVENT_DETAILS_URL = 'https://api.okticket.de/statistik/live/eventDetails/';
     private const UPDATE_URI = 'https://github.com/rieger-software/okticket-veranstaltungsliste/';
     private const GITHUB_RELEASE_API_URL = 'https://api.github.com/repos/rieger-software/okticket-veranstaltungsliste/releases/latest';
+    private const PLUGIN_FILE = __FILE__;
     private const CRON_HOOK = 'altmuehlbuehne_okticket_sync_events';
     private const CRON_SCHEDULE = 'altmuehlbuehne_okticket_every_fifteen_minutes';
 

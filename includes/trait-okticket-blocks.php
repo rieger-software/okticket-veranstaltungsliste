@@ -3,11 +3,11 @@ defined('ABSPATH') || exit;
 
 trait Altmuehlbuehne_OKTicket_Blocks_Trait {
     public static function register_overview_block(): void {
-        $file = plugin_dir_path(__FILE__) . 'assets/okticket-overview-block.js';
+        $file = plugin_dir_path(self::PLUGIN_FILE) . 'assets/okticket-overview-block.js';
 
         wp_register_script(
             'okticket-overview-block',
-            plugins_url('assets/okticket-overview-block.js', __FILE__),
+            plugins_url('assets/okticket-overview-block.js', self::PLUGIN_FILE),
             ['wp-blocks', 'wp-block-editor', 'wp-components', 'wp-element', 'wp-i18n', 'wp-server-side-render'],
             file_exists($file) ? (string) filemtime($file) : '0.2.0',
             true
@@ -149,11 +149,11 @@ trait Altmuehlbuehne_OKTicket_Blocks_Trait {
     }
 
     public static function register_details_block(): void {
-        $file = plugin_dir_path(__FILE__) . 'assets/okticket-details-block.js';
+        $file = plugin_dir_path(self::PLUGIN_FILE) . 'assets/okticket-details-block.js';
 
         wp_register_script(
             'okticket-details-block',
-            plugins_url('assets/okticket-details-block.js', __FILE__),
+            plugins_url('assets/okticket-details-block.js', self::PLUGIN_FILE),
             ['wp-blocks', 'wp-block-editor', 'wp-components', 'wp-element', 'wp-i18n', 'wp-server-side-render'],
             file_exists($file) ? (string) filemtime($file) : '0.2.0',
             true

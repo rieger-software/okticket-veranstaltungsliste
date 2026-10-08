@@ -5,7 +5,7 @@ trait Altmuehlbuehne_OKTicket_Update_Client_Trait {
     public static function check_for_updates($update, array $plugin_data, string $plugin_file, array $locales) {
         unset($locales);
 
-        if ($plugin_file !== plugin_basename(__FILE__)) {
+        if ($plugin_file !== plugin_basename(self::PLUGIN_FILE)) {
             return $update;
         }
 

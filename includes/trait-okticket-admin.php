@@ -23,10 +23,10 @@ trait Altmuehlbuehne_OKTicket_Admin_Trait {
             true
         );
 
-        $file = plugin_dir_path(__FILE__) . 'assets/admin.css';
+        $file = plugin_dir_path(self::PLUGIN_FILE) . 'assets/admin.css';
         wp_enqueue_style(
             'okticket-veranstaltungsliste-admin',
-            plugins_url('assets/admin.css', __FILE__),
+            plugins_url('assets/admin.css', self::PLUGIN_FILE),
             [],
             file_exists($file) ? (string) filemtime($file) : '0.2.0'
         );
@@ -126,7 +126,7 @@ trait Altmuehlbuehne_OKTicket_Admin_Trait {
                     <div class="row g-2 align-items-center">
                         <div class="col-auto">
                             <span class="avatar avatar-md bg-transparent">
-                                <img src="<?php echo esc_url(plugins_url('assets/okticket-logo.png', __FILE__)); ?>" alt="OKTicket Logo" class="avatar-img">
+                                <img src="<?php echo esc_url(plugins_url('assets/okticket-logo.png', self::PLUGIN_FILE)); ?>" alt="OKTicket Logo" class="avatar-img">
                             </span>
                         </div>
                         <div class="col">
@@ -278,11 +278,11 @@ trait Altmuehlbuehne_OKTicket_Admin_Trait {
                             <ol class="okticket-api-help-steps">
                                 <li>
                                     <strong>API-Einstellungen öffnen:</strong> Im OKTicket-Veranstalterkonto oben rechts auf Ihren Veranstalter-Namen klicken und im geöffneten Menü <strong>„API“</strong> auswählen.
-                                    <img class="okticket-api-help-image" src="<?php echo esc_url(plugins_url('assets/okticket-api-menu.png', __FILE__)); ?>" alt="Das Veranstalter-Menü bei OKTicket mit dem Menüpunkt API">
+                                    <img class="okticket-api-help-image" src="<?php echo esc_url(plugins_url('assets/okticket-api-menu.png', self::PLUGIN_FILE)); ?>" alt="Das Veranstalter-Menü bei OKTicket mit dem Menüpunkt API">
                                 </li>
                                 <li>
                                     <strong>Token anlegen:</strong> Auf der API-Seite auf <strong>„Neues Token erstellen“</strong> klicken. Den danach angezeigten Token kopieren, hier einfügen und anschließend <strong>„Token prüfen und speichern“</strong> wählen.
-                                    <img class="okticket-api-help-image" src="<?php echo esc_url(plugins_url('assets/okticket-api-token.png', __FILE__)); ?>" alt="Die API-Seite bei OKTicket mit der Schaltfläche Neues Token erstellen; der Token ist maskiert">
+                                    <img class="okticket-api-help-image" src="<?php echo esc_url(plugins_url('assets/okticket-api-token.png', self::PLUGIN_FILE)); ?>" alt="Die API-Seite bei OKTicket mit der Schaltfläche Neues Token erstellen; der Token ist maskiert">
                                 </li>
                             </ol>
                             <p>Bereits gespeicherte Token werden aus Sicherheitsgründen nicht angezeigt. Bei Fragen zum Token wenden Sie sich bitte an den OKTicket-Support.</p>
