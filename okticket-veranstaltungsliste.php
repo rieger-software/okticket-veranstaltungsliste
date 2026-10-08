@@ -2,9 +2,9 @@
 /**
  * Plugin Name: OKTicket Veranstaltungsliste
  * Description: Ruft Veranstaltungsdaten lesend aus der OKTicket-API ab.
- * Version: 0.2.0
+ * Version: 0.2.1
  * Author: okticket.de
- * Update URI: https://rieger-software.de/updates/okticket-veranstaltungsliste/
+ * Update URI: https://github.com/rieger-software/okticket-veranstaltungsliste/
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Text Domain: okticket-veranstaltungsliste
@@ -21,8 +21,8 @@ final class Altmuehlbuehne_OKTicket_Veranstaltungsliste {
     private const OPTION_LAST_SYNC = 'altmuehlbuehne_okticket_last_sync';
     private const API_URL = 'https://api.okticket.de/statistik/live/events';
     private const EVENT_DETAILS_URL = 'https://api.okticket.de/statistik/live/eventDetails/';
-    private const UPDATE_URI = 'https://rieger-software.de/updates/okticket-veranstaltungsliste/';
-    private const UPDATE_MANIFEST_URL = self::UPDATE_URI . 'manifest.json';
+    private const UPDATE_URI = 'https://github.com/rieger-software/okticket-veranstaltungsliste/';
+    private const GITHUB_RELEASE_API_URL = 'https://api.github.com/repos/rieger-software/okticket-veranstaltungsliste/releases/latest';
 
     public static function init(): void {
         add_action('init', [self::class, 'register_overview_block']);
@@ -41,7 +41,8 @@ final class Altmuehlbuehne_OKTicket_Veranstaltungsliste {
         add_action('admin_post_altmuehlbuehne_okticket_delete_overview_shortcode', [self::class, 'delete_overview_shortcode']);
         add_action('wp_enqueue_scripts', [self::class, 'enqueue_frontend_grid']);
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), [self::class, 'add_plugin_action_links']);
-        add_filter('update_plugins_rieger-software.de', [self::class, 'check_for_updates'], 10, 4);
+        add_filter('update_plugins_github.com', [self::class, 'check_for_updates'], 10, 4);
+        add_filter('plugins_api', [self::class, 'get_plugin_information'], 10, 3);
         add_shortcode('okticket_veranstaltungsliste', [self::class, 'render_events_shortcode']);
         add_shortcode('okticket_veranstaltungsuebersicht', [self::class, 'render_events_overview_shortcode']);
     }
@@ -330,10 +331,10 @@ final class Altmuehlbuehne_OKTicket_Veranstaltungsliste {
     }
 
     /**
-     * Provides WordPress with updates from the private OKTicket update service.
+     * Provides WordPress with updates from the latest public GitHub release.
      *
-     * The service is deliberately queried only during WordPress' regular plugin
-     * update checks. WordPress keeps control of both manual and automatic updates.
+     * WordPress decides when to run update checks and whether an automatic
+     * update is enabled. This plugin only supplies the release metadata.
      *
      * @param array|false $update Existing update response.
      * @param array<string, mixed> $plugin_data Plugin header data.
@@ -348,50 +349,141 @@ final class Altmuehlbuehne_OKTicket_Veranstaltungsliste {
             return $update;
         }
 
-        $response = wp_remote_get(self::UPDATE_MANIFEST_URL, [
-            'timeout' => 5,
-            'headers' => [
-                'Accept' => 'application/json',
-            ],
-        ]);
-
-        if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
-            return $update;
-        }
-
-        $manifest = json_decode(wp_remote_retrieve_body($response), true);
-        if (!is_array($manifest)) {
-            return $update;
-        }
-
-        $version = isset($manifest['version']) ? sanitize_text_field((string) $manifest['version']) : '';
-        $package = isset($manifest['download_url']) ? esc_url_raw((string) $manifest['download_url']) : '';
-        $package_host = wp_parse_url($package, PHP_URL_HOST);
+        $release = self::get_latest_github_release();
+        $version = is_array($release) ? self::get_release_version($release) : '';
+        $package = is_array($release) && $version !== '' ? self::get_release_package($release, $version) : '';
 
         if (
             $version === ''
             || $package === ''
-            || wp_parse_url($package, PHP_URL_SCHEME) !== 'https'
-            || $package_host !== 'rieger-software.de'
             || version_compare($version, (string) $plugin_data['Version'], '<=')
         ) {
             return $update;
         }
 
-        $details_url = isset($manifest['details_url'])
-            ? esc_url_raw((string) $manifest['details_url'])
-            : self::UPDATE_URI;
-
         return [
             'id' => self::UPDATE_URI,
             'slug' => 'okticket-veranstaltungsliste',
             'version' => $version,
-            'url' => $details_url,
+            'url' => self::UPDATE_URI,
             'package' => $package,
-            'tested' => isset($manifest['tested']) ? sanitize_text_field((string) $manifest['tested']) : '',
-            'requires' => isset($manifest['requires']) ? sanitize_text_field((string) $manifest['requires']) : '',
-            'requires_php' => isset($manifest['requires_php']) ? sanitize_text_field((string) $manifest['requires_php']) : '',
+            'tested' => '',
+            'requires' => '6.4',
+            'requires_php' => '7.4',
         ];
+    }
+
+    /**
+     * Supplies the native WordPress plugin-details modal.
+     *
+     * @param false|object|array $result Existing API result.
+     * @param string $action Requested API action.
+     * @param object $args Request arguments.
+     * @return false|object|array
+     */
+    public static function get_plugin_information($result, string $action, $args) {
+        if (
+            $action !== 'plugin_information'
+            || !is_object($args)
+            || !isset($args->slug)
+            || $args->slug !== 'okticket-veranstaltungsliste'
+        ) {
+            return $result;
+        }
+
+        $release = self::get_latest_github_release();
+        $version = is_array($release) ? self::get_release_version($release) : '';
+        if ($version === '') {
+            return $result;
+        }
+
+        $body = isset($release['body']) ? (string) $release['body'] : '';
+        $published_at = isset($release['published_at']) ? sanitize_text_field((string) $release['published_at']) : '';
+
+        return (object) [
+            'name' => 'OKTicket Veranstaltungsliste',
+            'slug' => 'okticket-veranstaltungsliste',
+            'version' => $version,
+            'author' => '<a href="https://okticket.de/">okticket.de</a>',
+            'homepage' => 'https://okticket.de/',
+            'requires' => '6.4',
+            'requires_php' => '7.4',
+            'last_updated' => $published_at,
+            'download_link' => self::get_release_package($release, $version),
+            'sections' => [
+                'description' => '<p>Verbindet WordPress mit der OKTicket-API und stellt Veranstaltungsdaten als Blöcke bereit.</p>',
+                'changelog' => wpautop(esc_html($body !== '' ? $body : 'Keine Änderungsnotizen verfügbar.')),
+            ],
+        ];
+    }
+
+    /**
+     * Retrieves the latest stable release metadata from GitHub.
+     *
+     * @return array<string, mixed>|null
+     */
+    private static function get_latest_github_release(): ?array {
+        $response = wp_remote_get(self::GITHUB_RELEASE_API_URL, [
+            'timeout' => 5,
+            'headers' => [
+                'Accept' => 'application/vnd.github+json',
+                'User-Agent' => 'OKTicket-Veranstaltungsliste',
+            ],
+        ]);
+
+        if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
+            return null;
+        }
+
+        $release = json_decode(wp_remote_retrieve_body($response), true);
+        if (
+            !is_array($release)
+            || !empty($release['draft'])
+            || !empty($release['prerelease'])
+        ) {
+            return null;
+        }
+
+        return $release;
+    }
+
+    /**
+     * Converts a GitHub tag such as v0.2.1 to a WordPress plugin version.
+     */
+    private static function get_release_version(array $release): string {
+        $tag = isset($release['tag_name']) ? trim((string) $release['tag_name']) : '';
+        $version = preg_replace('/^v/i', '', $tag);
+
+        if (!is_string($version) || !preg_match('/^[0-9][0-9A-Za-z.+_-]*$/', $version)) {
+            return '';
+        }
+
+        return $version;
+    }
+
+    /**
+     * Returns only the explicitly uploaded, versioned WordPress plugin ZIP.
+     */
+    private static function get_release_package(array $release, string $version): string {
+        $expected_name = 'okticket-veranstaltungsliste-' . $version . '.zip';
+        $assets = isset($release['assets']) && is_array($release['assets']) ? $release['assets'] : [];
+
+        foreach ($assets as $asset) {
+            if (!is_array($asset) || ($asset['name'] ?? '') !== $expected_name) {
+                continue;
+            }
+
+            $url = isset($asset['browser_download_url']) ? esc_url_raw((string) $asset['browser_download_url']) : '';
+            if (
+                $url !== ''
+                && wp_parse_url($url, PHP_URL_SCHEME) === 'https'
+                && wp_parse_url($url, PHP_URL_HOST) === 'github.com'
+            ) {
+                return $url;
+            }
+        }
+
+        return '';
     }
 
     public static function render_settings_page(): void {
