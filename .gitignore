@@ -1,0 +1,25 @@
+# Live-server backups and temporary editor files
+*.backup-*
+*.before-*
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Local credentials and deployment/server configuration
+.env
+.env.*
+*.pem
+*.key
+id_rsa*
+*.conf
+*.config
+
+# Local IDE settings
+.idea/
+.vscode/
+
+# Git metadata
+.git/

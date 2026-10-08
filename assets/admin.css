@@ -1,0 +1,478 @@
+.okticket-admin {
+    --okticket-blue: #206bc4;
+    --okticket-blue-dark: #1a5aa6;
+    --okticket-text: #1f2937;
+    --okticket-muted: #667085;
+    --okticket-border: #e6e8ec;
+    --okticket-bg: #f6f8fb;
+    --okticket-radius: 8px;
+    --okticket-shadow: 0 1px 2px rgba(31, 41, 55, .04), 0 2px 8px rgba(31, 41, 55, .035);
+    color: var(--okticket-text);
+}
+
+.okticket-admin > h1 {
+    margin: 26px 0 8px;
+    color: #182433;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -.02em;
+}
+
+.okticket-admin > p,
+.okticket-admin > hr + p,
+.okticket-admin h2 + p {
+    color: var(--okticket-muted);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.okticket-admin h2 {
+    margin: 0;
+    color: #182433;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -.01em;
+}
+
+.okticket-admin h3 {
+    margin: 28px 0 12px;
+    color: #344054;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+/* WordPress limits its generic admin cards to 500px; Tabler cards fill their grid column. */
+.okticket-admin .card {
+    width: 100%;
+    max-width: none;
+}
+
+.okticket-admin hr {
+    height: 1px;
+    margin: 32px 0 0;
+    border: 0;
+    background: var(--okticket-border);
+}
+
+.okticket-admin .notice {
+    margin: 18px 0;
+    border: 0;
+    border-left: 4px solid #98a2b3;
+    border-radius: 5px;
+    box-shadow: var(--okticket-shadow);
+}
+
+/* Keep page-level feedback below the navigation/header, even if admin styles float header content. */
+.okticket-admin > .notice {
+    clear: both;
+    display: block;
+}
+
+.okticket-admin .notice.notice-success { border-left-color: #2fb344; }
+.okticket-admin .notice.notice-error { border-left-color: #d63939; }
+.okticket-admin .notice.notice-warning { border-left-color: #f59f00; }
+
+.okticket-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(220px, 1fr));
+    gap: 18px;
+    max-width: 1120px;
+    margin: 24px 0;
+}
+
+.okticket-dashboard-card,
+.okticket-dashboard-actions {
+    box-sizing: border-box;
+    padding: 22px;
+    background: #fff;
+    border: 1px solid var(--okticket-border);
+    border-radius: var(--okticket-radius);
+    box-shadow: var(--okticket-shadow);
+}
+
+.okticket-dashboard-card {
+    min-height: 190px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.okticket-dashboard-card h2,
+.okticket-dashboard-actions h2 {
+    margin: 0 0 8px;
+    font-size: 16px;
+}
+
+.okticket-dashboard-card > p:not(.okticket-dashboard-number) {
+    margin: 0 0 18px;
+    color: var(--okticket-muted);
+    line-height: 1.5;
+}
+
+.okticket-dashboard-card .button { margin-top: auto; }
+
+.okticket-dashboard-number {
+    margin: 0 0 6px;
+    color: #182433;
+    font-size: 34px;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -.03em;
+}
+
+.okticket-dashboard-card .notice-success,
+.okticket-dashboard-card .notice-error {
+    display: inline-flex;
+    align-items: center;
+    margin: 0 0 10px;
+    padding: 4px 9px;
+    border: 0;
+    border-radius: 999px;
+    box-shadow: none;
+    font-size: 12px;
+}
+
+.okticket-dashboard-card .notice-success { color: #197c2b; background: #eaf7ed; }
+.okticket-dashboard-card .notice-error { color: #b42318; background: #fff0f0; }
+.okticket-dashboard-actions { max-width: 1120px; }
+
+.okticket-admin .button,
+.okticket-admin .button-secondary {
+    min-height: 34px;
+    padding: 5px 12px;
+    color: #344054;
+    border: 1px solid #d0d5dd;
+    border-radius: 6px;
+    background: #fff;
+    box-shadow: 0 1px 1px rgba(16, 24, 40, .04);
+    font-weight: 500;
+    line-height: 22px;
+}
+
+.okticket-admin .button:hover,
+.okticket-admin .button:focus {
+    color: #182433;
+    border-color: #98a2b3;
+    background: #f9fafb;
+}
+
+.okticket-admin .button-primary {
+    color: #fff;
+    border-color: var(--okticket-blue);
+    background: var(--okticket-blue);
+    box-shadow: 0 1px 2px rgba(32, 107, 196, .22);
+}
+
+.okticket-admin .button-primary:hover,
+.okticket-admin .button-primary:focus {
+    color: #fff;
+    border-color: var(--okticket-blue-dark);
+    background: var(--okticket-blue-dark);
+}
+
+.okticket-admin .form-table {
+    max-width: 1120px;
+    margin: 20px 0;
+    padding: 4px 22px 14px;
+    border: 1px solid var(--okticket-border);
+    border-radius: var(--okticket-radius);
+    background: #fff;
+    box-shadow: var(--okticket-shadow);
+}
+
+.okticket-admin .form-table th,
+.okticket-admin .form-table td {
+    padding: 18px 12px;
+    border-bottom: 1px solid #f0f1f3;
+}
+
+.okticket-admin .form-table tr:last-child th,
+.okticket-admin .form-table tr:last-child td { border-bottom: 0; }
+.okticket-admin .form-table th { color: #344054; font-weight: 600; }
+.okticket-admin .form-table .description { color: var(--okticket-muted); }
+
+.okticket-admin .okticket-help-button {
+    min-width: 22px;
+    min-height: 22px;
+    margin-left: 6px;
+    padding: 0 6px;
+    border-color: #98a2b3;
+    border-radius: 50%;
+    color: #475467;
+    font-weight: 700;
+    line-height: 20px;
+    vertical-align: middle;
+}
+
+.okticket-admin .okticket-help-button:hover,
+.okticket-admin .okticket-help-button:focus {
+    color: #fff;
+    border-color: var(--okticket-blue);
+    background: var(--okticket-blue);
+}
+
+.okticket-admin .modal-body p:first-child { margin-top: 0; }
+.okticket-admin .modal-body p:last-child { margin-bottom: 0; }
+
+.okticket-admin .okticket-api-help-steps {
+    display: grid;
+    gap: 20px;
+    margin: 20px 0;
+    padding-left: 24px;
+}
+
+.okticket-admin .okticket-api-help-steps li { padding-left: 4px; }
+
+.okticket-admin .okticket-api-help-image {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    border: 1px solid var(--okticket-border);
+    border-radius: 6px;
+}
+
+/* Keep the header and footer reachable when the illustrated API help exceeds the viewport. */
+.okticket-admin #okticket-api-help .modal-dialog {
+    max-height: calc(100vh - 2rem);
+}
+
+.okticket-admin #okticket-api-help .modal-content {
+    max-height: calc(100vh - 2rem);
+    overflow: hidden;
+}
+
+.okticket-admin #okticket-api-help .modal-body {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.okticket-admin input.regular-text,
+.okticket-admin select.regular-text,
+.okticket-admin input[type="search"] {
+    min-height: 36px;
+    border: 1px solid #d0d5dd;
+    border-radius: 6px;
+    box-shadow: none;
+}
+
+.okticket-admin input.regular-text:focus,
+.okticket-admin input[type="search"]:focus {
+    border-color: var(--okticket-blue);
+    box-shadow: 0 0 0 3px rgba(32, 107, 196, .12);
+}
+
+.okticket-admin .form-table td > label {
+    display: block !important;
+    margin: 6px 0 !important;
+    padding: 9px 11px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+}
+
+.okticket-admin .form-table td > label:hover { border-color: #dce7f6; background: #f7faff; }
+.okticket-admin .form-table input[type="checkbox"],
+.okticket-admin .form-table input[type="radio"] { accent-color: var(--okticket-blue); }
+
+.okticket-event-search {
+    display: block;
+    width: min(100%, 440px);
+    margin: 18px 0 12px;
+    padding: 0 12px;
+}
+
+.okticket-admin .widefat {
+    max-width: 1120px;
+    border: 1px solid var(--okticket-border);
+    border-radius: var(--okticket-radius);
+    border-spacing: 0;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: var(--okticket-shadow);
+}
+
+.okticket-admin .widefat thead th {
+    padding: 12px 14px;
+    color: #667085;
+    border-bottom: 1px solid var(--okticket-border);
+    background: #f9fafb;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.okticket-admin .widefat td {
+    padding: 13px 14px;
+    color: #475467;
+    border-bottom: 1px solid #edf0f3;
+    vertical-align: middle;
+}
+
+.okticket-admin .widefat tbody tr:last-child td { border-bottom: 0; }
+.okticket-admin .widefat tbody tr:hover td { background: #f8fbff; }
+.okticket-admin .widefat code { color: #175cd3; background: #eff6ff; }
+.okticket-admin .widefat .button { margin: 1px 3px 1px 0; }
+.okticket-admin .button-link-delete { color: #d63939; }
+.okticket-admin .button-link-delete:hover { color: #b42318; }
+.okticket-admin .dashicons { width: 18px; height: 18px; line-height: 22px; }
+
+@media (max-width: 782px) {
+    .okticket-dashboard-grid { grid-template-columns: 1fr; }
+    .okticket-admin .form-table { padding: 4px 12px 12px; }
+    .okticket-admin .form-table th,
+    .okticket-admin .form-table td { display: block; width: auto; padding: 12px 6px; }
+    .okticket-admin .form-table th { padding-bottom: 0; }
+    .okticket-admin .widefat { display: block; overflow-x: auto; }
+}
+
+.okticket-admin .navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    white-space: normal;
+}
+
+.okticket-admin .navbar-brand h1 {
+    margin: 0;
+    color: #182433;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -.02em;
+}
+
+.okticket-admin-logo {
+    display: block;
+    width: 86px;
+    height: auto;
+}
+
+.okticket-dashboard-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    margin: 0 0 8px;
+}
+
+.okticket-dashboard-card-header h2,
+.okticket-dashboard-card-header .notice-success,
+.okticket-dashboard-card-header .notice-error {
+    margin: 0;
+}
+
+.okticket-dashboard-badge {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 4px 9px;
+    color: #1a5aa6;
+    border-radius: 999px;
+    background: #eaf2fb;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.okticket-dashboard-badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.okticket-dashboard-badge strong {
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.okticket-dashboard-card-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.okticket-dashboard-card-buttons .button {
+    margin-top: 0;
+}
+
+.okticket-events-date {
+    min-width: 220px;
+}
+
+.okticket-appointments summary {
+    cursor: pointer;
+    color: var(--okticket-blue);
+    font-weight: 600;
+}
+
+.okticket-appointments table {
+    width: 100%;
+    margin-top: 10px;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.okticket-appointments th,
+.okticket-appointments td {
+    padding: 7px 8px;
+    border: 1px solid var(--okticket-border);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.okticket-appointments th {
+    color: #344054;
+    background: #f8fafc;
+}
+
+.okticket-overview-editor {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(640px, 840px);
+    gap: 24px;
+    align-items: start;
+    max-width: 1660px;
+}
+
+.okticket-overview-editor-form .form-table {
+    max-width: none;
+}
+
+.okticket-overview-editor-form {
+    min-width: 0;
+}
+
+.okticket-overview-preview {
+    position: sticky;
+    top: 42px;
+    box-sizing: border-box;
+    padding: 18px;
+    border: 1px solid var(--okticket-border);
+    border-radius: var(--okticket-radius);
+    background: #fff;
+    box-shadow: var(--okticket-shadow);
+}
+
+.okticket-overview-preview h2 {
+    margin: 0 0 14px;
+}
+
+.okticket-overview-preview iframe {
+    display: block;
+    width: 100%;
+    min-height: 620px;
+    margin: 0 0 12px;
+    border: 1px solid var(--okticket-border);
+    background: #fff;
+}
+
+@media (max-width: 1400px) {
+    .okticket-overview-editor {
+        grid-template-columns: 1fr;
+    }
+
+    .okticket-overview-preview {
+        position: static;
+    }
+}
