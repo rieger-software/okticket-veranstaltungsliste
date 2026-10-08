@@ -2,7 +2,7 @@
 /**
  * Plugin Name: OKTicket Veranstaltungsliste
  * Description: Ruft Veranstaltungsdaten lesend aus der OKTicket-API ab.
- * Version: 0.2.2
+ * Version: 0.2.3
  * Author: okticket.de
  * Update URI: https://github.com/rieger-software/okticket-veranstaltungsliste/
  * Requires at least: 6.4

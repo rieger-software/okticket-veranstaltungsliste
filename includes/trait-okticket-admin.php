@@ -88,7 +88,8 @@ trait Altmuehlbuehne_OKTicket_Admin_Trait {
 
     public static function add_plugin_action_links(array $links): array {
         $settings_link = '<a href="' . esc_url(admin_url('admin.php?page=okticket-settings')) . '">Einstellungen</a>';
-        array_unshift($links, $settings_link);
+        $details_link = '<a href="' . esc_url(self_admin_url('plugin-install.php?tab=plugin-information&plugin=okticket-veranstaltungsliste&TB_iframe=true&width=772&height=865')) . '" class="thickbox open-plugin-details-modal" aria-label="Details zu OKTicket Veranstaltungsliste anzeigen">Details</a>';
+        array_unshift($links, $settings_link, $details_link);
 
         return $links;
     }
