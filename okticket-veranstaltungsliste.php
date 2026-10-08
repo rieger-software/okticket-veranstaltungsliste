@@ -2,7 +2,7 @@
 /**
  * Plugin Name: OKTicket Veranstaltungsliste
  * Description: Ruft Veranstaltungsdaten lesend aus der OKTicket-API ab.
- * Version: 0.2.1
+ * Version: 0.2.2
  * Author: okticket.de
  * Update URI: https://github.com/rieger-software/okticket-veranstaltungsliste/
  * Requires at least: 6.4
@@ -23,8 +23,13 @@ final class Altmuehlbuehne_OKTicket_Veranstaltungsliste {
     private const EVENT_DETAILS_URL = 'https://api.okticket.de/statistik/live/eventDetails/';
     private const UPDATE_URI = 'https://github.com/rieger-software/okticket-veranstaltungsliste/';
     private const GITHUB_RELEASE_API_URL = 'https://api.github.com/repos/rieger-software/okticket-veranstaltungsliste/releases/latest';
+    private const CRON_HOOK = 'altmuehlbuehne_okticket_sync_events';
+    private const CRON_SCHEDULE = 'altmuehlbuehne_okticket_every_fifteen_minutes';
 
     public static function init(): void {
+        add_filter('cron_schedules', [self::class, 'add_cron_schedule']);
+        add_action('init', [self::class, 'ensure_scheduled_sync']);
+        add_action(self::CRON_HOOK, [self::class, 'run_scheduled_sync']);
         add_action('init', [self::class, 'register_overview_block']);
         add_action('init', [self::class, 'register_details_block']);
         add_action('enqueue_block_editor_assets', [self::class, 'enqueue_block_editor_data']);
@@ -45,6 +50,46 @@ final class Altmuehlbuehne_OKTicket_Veranstaltungsliste {
         add_filter('plugins_api', [self::class, 'get_plugin_information'], 10, 3);
         add_shortcode('okticket_veranstaltungsliste', [self::class, 'render_events_shortcode']);
         add_shortcode('okticket_veranstaltungsuebersicht', [self::class, 'render_events_overview_shortcode']);
+    }
+
+    /**
+     * Registers the recurring background sync interval.
+     *
+     * @param array<string, array<string, mixed>> $schedules Existing schedules.
+     * @return array<string, array<string, mixed>>
+     */
+    public static function add_cron_schedule(array $schedules): array {
+        if (!isset($schedules[self::CRON_SCHEDULE])) {
+            $schedules[self::CRON_SCHEDULE] = [
+                'interval' => 15 * MINUTE_IN_SECONDS,
+                'display' => 'Alle 15 Minuten (OKTicket)',
+            ];
+        }
+
+        return $schedules;
+    }
+
+    /**
+     * Schedules the sync for fresh installations and after plugin updates.
+     */
+    public static function ensure_scheduled_sync(): void {
+        if (!wp_next_scheduled(self::CRON_HOOK)) {
+            wp_schedule_event(time() + MINUTE_IN_SECONDS, self::CRON_SCHEDULE, self::CRON_HOOK);
+        }
+    }
+
+    /**
+     * Runs from WP-Cron and keeps the last successful snapshot on failures.
+     */
+    public static function run_scheduled_sync(): void {
+        self::sync_events();
+    }
+
+    /**
+     * Removes the recurring task when the plugin is deactivated.
+     */
+    public static function deactivate(): void {
+        wp_clear_scheduled_hook(self::CRON_HOOK);
     }
 
     public static function register_overview_block(): void {
@@ -1967,3 +2012,4 @@ final class Altmuehlbuehne_OKTicket_Veranstaltungsliste {
 }
 
 Altmuehlbuehne_OKTicket_Veranstaltungsliste::init();
+register_deactivation_hook(__FILE__, [Altmuehlbuehne_OKTicket_Veranstaltungsliste::class, 'deactivate']);
