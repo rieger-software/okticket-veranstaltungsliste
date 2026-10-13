@@ -18,6 +18,14 @@ trait Altmuehlbuehne_OKTicket_Frontend_Trait {
 
         $fields = is_array($config) ? $config['fields'] : self::field_keys();
         $selected_ids = is_array($config) ? array_slice(array_map('absint', $config['event_ids']), 0, 1) : [];
+        $vvk_enabled = is_array($config) && !empty($config['vvk_enabled']);
+        $vvk_fields = is_array($config) && isset($config['vvk_fields']) && is_array($config['vvk_fields'])
+            ? array_values(array_intersect(self::vvk_field_keys(), array_map('sanitize_key', $config['vvk_fields'])))
+            : [];
+        $vvk_limit = is_array($config) && isset($config['vvk_limit'])
+            ? min(50, max(1, absint($config['vvk_limit'])))
+            : 5;
+        $vvk_sort_by_venue_postcode = is_array($config) && !empty($config['vvk_sort_by_venue_postcode']);
 
         $result = self::get_events();
 
@@ -89,6 +97,10 @@ trait Altmuehlbuehne_OKTicket_Frontend_Trait {
                 ])));
                 $description = (string) ($details['KurzBeschreibung'] ?? '');
                 $long_description = (string) ($details['LangBeschreibung'] ?? '');
+                $venue_postcode = trim((string) ($details['OrtPLZ'] ?? ''));
+                $vvks = $vvk_enabled
+                    ? array_slice(self::get_vvks_for_venue_postcode($venue_postcode, $vvk_sort_by_venue_postcode), 0, $vvk_limit)
+                    : [];
                 $has_image = in_array('image', $fields, true) && $image_url !== '';
                 $meta_rows = [];
                 if (in_array('venue', $fields, true) && $address !== '') {
@@ -210,6 +222,69 @@ trait Altmuehlbuehne_OKTicket_Frontend_Trait {
                                                 </div>
                                             </a>
                                         </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        <?php endif; ?>
+                        <?php if ($vvks && $vvk_fields) : ?>
+                            <div class="okticket-veranstaltung__vvks">
+                                <h4>Vorverkaufsstellen</h4>
+                                <ul>
+                                    <?php foreach ($vvks as $vvk) : ?>
+                                        <?php
+                                        if (!is_array($vvk)) {
+                                            continue;
+                                        }
+                                        $vvk_values = [];
+                                        foreach (self::vvk_field_labels() as $field_key => $label) {
+                                            if ($field_key === 'zip') {
+                                                $place_parts = [];
+                                                foreach (['zip', 'city'] as $place_field) {
+                                                    if (!in_array($place_field, $vvk_fields, true)) {
+                                                        continue;
+                                                    }
+                                                    $place_value = trim((string) ($vvk[$place_field] ?? ''));
+                                                    if ($place_value !== '') {
+                                                        $place_parts[] = $place_value;
+                                                    }
+                                                }
+                                                if ($place_parts) {
+                                                    $vvk_values[] = [
+                                                        'value' => implode(' ', $place_parts),
+                                                        'is_name' => false,
+                                                    ];
+                                                }
+                                                continue;
+                                            }
+                                            if ($field_key === 'city') {
+                                                continue;
+                                            }
+                                            if (!in_array($field_key, $vvk_fields, true)) {
+                                                continue;
+                                            }
+                                            $value = trim((string) ($vvk[$field_key] ?? ''));
+                                            if ($field_key === 'distance' && $value !== '' && is_numeric($value)) {
+                                                $value = number_format_i18n((float) $value, 1) . ' km';
+                                            }
+                                            if ($value !== '') {
+                                                $vvk_values[] = [
+                                                    'value' => $value,
+                                                    'is_name' => $field_key === 'name',
+                                                ];
+                                            }
+                                        }
+                                        ?>
+                                        <?php if ($vvk_values) : ?>
+                                            <li class="okticket-veranstaltung__vvk">
+                                                <?php foreach ($vvk_values as $vvk_value) : ?>
+                                                    <div class="okticket-veranstaltung__vvk-value">
+                                                        <?php if ($vvk_value['is_name']) : ?><strong><?php endif; ?>
+                                                        <?php echo nl2br(esc_html($vvk_value['value'])); ?>
+                                                        <?php if ($vvk_value['is_name']) : ?></strong><?php endif; ?>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </li>
+                                        <?php endif; ?>
                                     <?php endforeach; ?>
                                 </ul>
                             </div>
@@ -341,6 +416,23 @@ trait Altmuehlbuehne_OKTicket_Frontend_Trait {
 
     private static function field_keys(): array {
         return ['image', 'api_name', 'api_kurzbeschreibung', 'api_langbeschreibung', 'api_ortnamelang', 'api_titel', 'appointments'];
+    }
+
+    private static function vvk_field_keys(): array {
+        return array_keys(self::vvk_field_labels());
+    }
+
+    private static function vvk_field_labels(): array {
+        return [
+            'name' => 'Name',
+            'zusatz' => 'Zusatz',
+            'street' => 'Straße',
+            'zip' => 'PLZ',
+            'city' => 'Ort',
+            'phone' => 'Telefon',
+            'opentimes' => 'Öffnungszeiten',
+            'distance' => 'Entfernung',
+        ];
     }
 
     private static function overview_field_keys(): array {
@@ -863,7 +955,7 @@ trait Altmuehlbuehne_OKTicket_Frontend_Trait {
     private static function get_traffic_light(int $free, int $total): array {
         $percent = $total > 0 ? ($free / $total) * 100 : 0.0;
 
-        if ($percent > 10) {
+        if ($percent > 30) {
             return ["class" => "okticket-veranstaltung__status--available", "label" => "Tickets verfügbar"];
         }
 

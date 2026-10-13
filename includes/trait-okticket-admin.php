@@ -62,6 +62,11 @@ trait Altmuehlbuehne_OKTicket_Admin_Trait {
             .okticket-bootstrap .okticket-veranstaltung__status--sold-out .okticket-veranstaltung__status-dot{color:#6c757d}
             .okticket-bootstrap .okticket-veranstaltung__date-chevron-column{display:flex;justify-content:flex-end}
             .okticket-bootstrap .okticket-veranstaltung__date-chevron{font-size:1.5em;line-height:1}
+            .okticket-bootstrap .okticket-veranstaltung__vvks{margin-top:1.25rem}
+            .okticket-bootstrap .okticket-veranstaltung__vvks ul{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.75rem;margin:0;padding:0;list-style:none}
+            .okticket-bootstrap .okticket-veranstaltung__vvk{margin:0;padding:.75rem;border:1px solid #c9c9c9;border-radius:.4rem}
+            @media (max-width:900px){.okticket-bootstrap .okticket-veranstaltung__vvks ul{grid-template-columns:repeat(2,minmax(0,1fr))}}
+            @media (max-width:500px){.okticket-bootstrap .okticket-veranstaltung__vvks ul{grid-template-columns:1fr}}
             .okticket-bootstrap .okticket-veranstaltungsuebersicht{width:100%}
             .okticket-bootstrap .searchItem{margin:0 0 1.5rem;padding:1rem;background:#fff;border:1px solid #c9c9c9;border-radius:.4rem}
             .okticket-bootstrap .okticket-veranstaltungsuebersicht__link{display:block;color:inherit;text-decoration:none}
@@ -343,7 +348,9 @@ trait Altmuehlbuehne_OKTicket_Admin_Trait {
         }
 
         check_admin_referer('altmuehlbuehne_okticket_refresh_events');
-        self::redirect_with_notice(self::sync_events() ? 'synced' : 'sync_failed', 'dashboard');
+        $events_synced = self::sync_events();
+        $vvks_synced = self::sync_vvks();
+        self::redirect_with_notice($events_synced && $vvks_synced ? 'synced' : 'sync_failed', 'dashboard');
     }
 
     public static function preview_overview(): void {

@@ -39,6 +39,35 @@ trait Altmuehlbuehne_OKTicket_Sync_Trait {
         return ['status' => 0, 'events' => [], 'error' => 'Noch nicht synchronisiert'];
     }
 
+    /**
+     * Returns the locally cached master list of sales points.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private static function get_vvks(): array {
+        $vvks = get_option(self::OPTION_VVKS_SNAPSHOT, []);
+        return is_array($vvks) ? $vvks : [];
+    }
+
+    /**
+     * Returns the daily cached list ordered by distance from a venue postcode.
+     * Falls back to the standard list if that postcode has not been synced yet.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private static function get_vvks_for_venue_postcode(string $postcode, bool $sort_by_distance): array {
+        if (!$sort_by_distance || !preg_match('/^\d{5}$/', $postcode)) {
+            return self::get_vvks();
+        }
+
+        $by_postcode = get_option(self::OPTION_VVKS_BY_PLZ_SNAPSHOT, []);
+        if (is_array($by_postcode) && isset($by_postcode[$postcode]) && is_array($by_postcode[$postcode])) {
+            return $by_postcode[$postcode];
+        }
+
+        return self::get_vvks();
+    }
+
     private static function sync_events(): bool {
         $token = self::get_token();
 
@@ -93,6 +122,80 @@ trait Altmuehlbuehne_OKTicket_Sync_Trait {
         update_option(self::OPTION_LAST_SYNC, time(), false);
 
         return true;
+    }
+
+    /**
+     * Updates the locally stored sales-point master list once per day.
+     */
+    private static function sync_vvks(): bool {
+        $token = self::get_token();
+
+        if ($token === '') {
+            return false;
+        }
+
+        $response = wp_remote_post(self::VVKS_URL, [
+            'timeout' => 30,
+            'body' => ['token' => $token],
+        ]);
+        $data = is_wp_error($response) ? null : json_decode(wp_remote_retrieve_body($response), true);
+
+        if (wp_remote_retrieve_response_code($response) !== 200 || !is_array($data) || !is_array($data['vvks'] ?? null)) {
+            return false;
+        }
+
+        update_option(self::OPTION_VVKS_SNAPSHOT, $data['vvks'], false);
+        self::sync_vvks_by_venue_postcode($token);
+        update_option(self::OPTION_VVKS_LAST_SYNC, time(), false);
+
+        return true;
+    }
+
+    /**
+     * Prepares distance-sorted lists for all postcodes used by current event
+     * series, so front-end rendering never has to call the OKTicket API.
+     */
+    private static function sync_vvks_by_venue_postcode(string $token): void {
+        $details_snapshot = get_option(self::OPTION_EVENT_DETAILS_SNAPSHOT, []);
+        if (!is_array($details_snapshot)) {
+            return;
+        }
+
+        $postcodes = [];
+        foreach ($details_snapshot as $details) {
+            if (!is_array($details)) {
+                continue;
+            }
+
+            $postcode = trim((string) ($details['OrtPLZ'] ?? ''));
+            if (preg_match('/^\d{5}$/', $postcode)) {
+                $postcodes[$postcode] = true;
+            }
+        }
+
+        if (!$postcodes) {
+            return;
+        }
+
+        $by_postcode = get_option(self::OPTION_VVKS_BY_PLZ_SNAPSHOT, []);
+        $by_postcode = is_array($by_postcode) ? $by_postcode : [];
+
+        foreach (array_keys($postcodes) as $postcode) {
+            $response = wp_remote_post(self::VVKS_URL, [
+                'timeout' => 30,
+                'body' => [
+                    'token' => $token,
+                    'plz' => $postcode,
+                ],
+            ]);
+            $data = is_wp_error($response) ? null : json_decode(wp_remote_retrieve_body($response), true);
+
+            if (wp_remote_retrieve_response_code($response) === 200 && is_array($data) && is_array($data['vvks'] ?? null)) {
+                $by_postcode[$postcode] = $data['vvks'];
+            }
+        }
+
+        update_option(self::OPTION_VVKS_BY_PLZ_SNAPSHOT, $by_postcode, false);
     }
 
 }

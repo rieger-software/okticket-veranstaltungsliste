@@ -27,6 +27,10 @@ trait Altmuehlbuehne_OKTicket_Cron_Trait {
         if (!wp_next_scheduled(self::CRON_HOOK)) {
             wp_schedule_event(time() + MINUTE_IN_SECONDS, self::CRON_SCHEDULE, self::CRON_HOOK);
         }
+
+        if (!wp_next_scheduled(self::VVKS_CRON_HOOK)) {
+            wp_schedule_event(time() + (5 * MINUTE_IN_SECONDS), 'daily', self::VVKS_CRON_HOOK);
+        }
     }
 
     /**
@@ -37,10 +41,18 @@ trait Altmuehlbuehne_OKTicket_Cron_Trait {
     }
 
     /**
+     * Runs daily because the master list of sales points changes only rarely.
+     */
+    public static function run_scheduled_vvks_sync(): void {
+        self::sync_vvks();
+    }
+
+    /**
      * Removes the recurring task when the plugin is deactivated.
      */
     public static function deactivate(): void {
         wp_clear_scheduled_hook(self::CRON_HOOK);
+        wp_clear_scheduled_hook(self::VVKS_CRON_HOOK);
     }
 
 }
