@@ -2,6 +2,12 @@
 defined('ABSPATH') || exit;
 
 trait Altmuehlbuehne_OKTicket_Sync_Trait {
+    public static function activate(): void {
+        // Migrate an existing plaintext token before the plugin is used.
+        self::get_token();
+        self::ensure_scheduled_sync();
+    }
+
     private static function validate_token(string $token): string {
         $response = wp_remote_post(self::API_URL, [
             'timeout' => 20,
@@ -25,7 +31,77 @@ trait Altmuehlbuehne_OKTicket_Sync_Trait {
     }
 
     private static function get_token(): string {
-        $token = get_option(self::OPTION_TOKEN, '');
+        $stored_token = get_option(self::OPTION_TOKEN, '');
+        if (!is_string($stored_token) || $stored_token === '') {
+            return '';
+        }
+
+        if (strpos($stored_token, 'okticket:v1:') === 0) {
+            return self::decrypt_token($stored_token);
+        }
+
+        // Migrate a token saved by an older plugin version on first use.
+        $token = trim($stored_token);
+        return $token !== '' && self::store_token($token) ? $token : '';
+    }
+
+    private static function store_token(string $token): bool {
+        $encrypted_token = self::encrypt_token($token);
+        return $encrypted_token !== '' && update_option(self::OPTION_TOKEN, $encrypted_token, false);
+    }
+
+    private static function token_encryption_key(): string {
+        $salt = wp_salt('auth');
+        return is_string($salt) && $salt !== ''
+            ? hash_hmac('sha256', 'okticket-token-encryption-v1', $salt, true)
+            : '';
+    }
+
+    private static function encrypt_token(string $token): string {
+        if (!function_exists('openssl_encrypt')) {
+            return '';
+        }
+
+        $key = self::token_encryption_key();
+        if ($key === '') {
+            return '';
+        }
+
+        try {
+            $iv = random_bytes(16);
+        } catch (Exception $exception) {
+            return '';
+        }
+
+        $ciphertext = openssl_encrypt($token, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
+        if (!is_string($ciphertext) || $ciphertext === '') {
+            return '';
+        }
+
+        $mac = hash_hmac('sha256', $iv . $ciphertext, $key, true);
+        return 'okticket:v1:' . base64_encode($iv . $mac . $ciphertext);
+    }
+
+    private static function decrypt_token(string $stored_token): string {
+        if (!function_exists('openssl_decrypt')) {
+            return '';
+        }
+
+        $key = self::token_encryption_key();
+        $payload = base64_decode(substr($stored_token, strlen('okticket:v1:')), true);
+        if ($key === '' || !is_string($payload) || strlen($payload) <= 48) {
+            return '';
+        }
+
+        $iv = substr($payload, 0, 16);
+        $mac = substr($payload, 16, 32);
+        $ciphertext = substr($payload, 48);
+        $expected_mac = hash_hmac('sha256', $iv . $ciphertext, $key, true);
+        if (!hash_equals($expected_mac, $mac)) {
+            return '';
+        }
+
+        $token = openssl_decrypt($ciphertext, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
         return is_string($token) ? trim($token) : '';
     }
 

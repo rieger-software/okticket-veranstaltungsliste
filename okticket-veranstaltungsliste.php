@@ -2,9 +2,9 @@
 /**
  * Plugin Name: OKTicket Veranstaltungsliste
  * Description: Ruft Veranstaltungsdaten lesend aus der OKTicket-API ab.
- * Version: 0.2.5
+ * Version: 0.2.7
  * Author: okticket.de
- * Update URI: https://github.com/rieger-software/okticket-veranstaltungsliste/
+ * Update URI: false
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Text Domain: okticket-veranstaltungsliste
@@ -15,7 +15,6 @@ defined('ABSPATH') || exit;
 
 require_once __DIR__ . '/includes/trait-okticket-cron.php';
 require_once __DIR__ . '/includes/trait-okticket-blocks.php';
-require_once __DIR__ . '/includes/trait-okticket-update-client.php';
 require_once __DIR__ . '/includes/trait-okticket-admin.php';
 require_once __DIR__ . '/includes/trait-okticket-sync.php';
 require_once __DIR__ . '/includes/trait-okticket-frontend.php';
@@ -23,7 +22,6 @@ require_once __DIR__ . '/includes/trait-okticket-frontend.php';
 final class Altmuehlbuehne_OKTicket_Veranstaltungsliste {
     use Altmuehlbuehne_OKTicket_Cron_Trait;
     use Altmuehlbuehne_OKTicket_Blocks_Trait;
-    use Altmuehlbuehne_OKTicket_Update_Client_Trait;
     use Altmuehlbuehne_OKTicket_Admin_Trait;
     use Altmuehlbuehne_OKTicket_Sync_Trait;
     use Altmuehlbuehne_OKTicket_Frontend_Trait;
@@ -40,8 +38,6 @@ final class Altmuehlbuehne_OKTicket_Veranstaltungsliste {
     private const API_URL = 'https://api.okticket.de/statistik/live/events';
     private const EVENT_DETAILS_URL = 'https://api.okticket.de/statistik/live/eventDetails/';
     private const VVKS_URL = 'https://api.okticket.de/statistik/live/vvks';
-    private const UPDATE_URI = 'https://github.com/rieger-software/okticket-veranstaltungsliste/';
-    private const GITHUB_RELEASE_API_URL = 'https://api.github.com/repos/rieger-software/okticket-veranstaltungsliste/releases/latest';
     private const PLUGIN_FILE = __FILE__;
     private const CRON_HOOK = 'altmuehlbuehne_okticket_sync_events';
     private const CRON_SCHEDULE = 'altmuehlbuehne_okticket_every_fifteen_minutes';
@@ -70,14 +66,13 @@ final class Altmuehlbuehne_OKTicket_Veranstaltungsliste {
         add_action('admin_post_altmuehlbuehne_okticket_delete_overview_shortcode', [self::class, 'delete_overview_shortcode']);
         add_action('wp_enqueue_scripts', [self::class, 'enqueue_frontend_grid']);
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), [self::class, 'add_plugin_action_links']);
-        add_filter('update_plugins_github.com', [self::class, 'check_for_updates'], 10, 4);
-        add_filter('plugins_api', [self::class, 'get_plugin_information'], 10, 3);
         add_shortcode('okticket_veranstaltungsliste', [self::class, 'render_events_shortcode']);
         add_shortcode('okticket_veranstaltungsuebersicht', [self::class, 'render_events_overview_shortcode']);
     }
 }
 
 Altmuehlbuehne_OKTicket_Veranstaltungsliste::init();
+register_activation_hook(__FILE__, [Altmuehlbuehne_OKTicket_Veranstaltungsliste::class, 'activate']);
 register_deactivation_hook(__FILE__, [Altmuehlbuehne_OKTicket_Veranstaltungsliste::class, 'deactivate']);
 
 if (class_exists('WP_Widget')) {
@@ -96,6 +91,8 @@ if (class_exists('WP_Widget')) {
             $limit = min(10, max(1, absint($instance['limit'] ?? 5)));
             $show_all = !empty($instance['show_all']);
             $show_availability = !empty($instance['show_availability']);
+            $hide_past = !empty($instance['hide_past']);
+            $bold_next = !empty($instance['bold_next']);
 
             if ($event_id <= 0) {
                 return;
@@ -107,6 +104,8 @@ if (class_exists('WP_Widget')) {
                 'limit' => $limit,
                 'showAll' => $show_all,
                 'showAvailability' => $show_availability,
+                'hidePast' => $hide_past,
+                'boldNext' => $bold_next,
             ]);
             if ($content === '') {
                 return;
@@ -126,6 +125,8 @@ if (class_exists('WP_Widget')) {
             $limit = min(10, max(1, absint($instance['limit'] ?? 5)));
             $show_all = !empty($instance['show_all']);
             $show_availability = !empty($instance['show_availability']);
+            $hide_past = !empty($instance['hide_past']);
+            $bold_next = !empty($instance['bold_next']);
             $series = Altmuehlbuehne_OKTicket_Veranstaltungsliste::get_widget_series();
             ?>
             <p>
@@ -153,6 +154,14 @@ if (class_exists('WP_Widget')) {
                 <input id="<?php echo esc_attr($this->get_field_id('show_availability')); ?>" name="<?php echo esc_attr($this->get_field_name('show_availability')); ?>" type="checkbox" value="1" <?php checked($show_availability); ?>>
                 <label for="<?php echo esc_attr($this->get_field_id('show_availability')); ?>">Ticket-Ampel anzeigen</label>
             </p>
+            <p>
+                <input id="<?php echo esc_attr($this->get_field_id('hide_past')); ?>" name="<?php echo esc_attr($this->get_field_name('hide_past')); ?>" type="checkbox" value="1" <?php checked($hide_past); ?>>
+                <label for="<?php echo esc_attr($this->get_field_id('hide_past')); ?>">Vergangene Termine ausblenden</label>
+            </p>
+            <p>
+                <input id="<?php echo esc_attr($this->get_field_id('bold_next')); ?>" name="<?php echo esc_attr($this->get_field_name('bold_next')); ?>" type="checkbox" value="1" <?php checked($bold_next); ?>>
+                <label for="<?php echo esc_attr($this->get_field_id('bold_next')); ?>">Nächsten Termin fett darstellen</label>
+            </p>
             <?php
         }
 
@@ -163,6 +172,8 @@ if (class_exists('WP_Widget')) {
                 'limit' => min(10, max(1, absint($new_instance['limit'] ?? 5))),
                 'show_all' => !empty($new_instance['show_all']),
                 'show_availability' => !empty($new_instance['show_availability']),
+                'hide_past' => !empty($new_instance['hide_past']),
+                'bold_next' => !empty($new_instance['bold_next']),
             ];
         }
     }

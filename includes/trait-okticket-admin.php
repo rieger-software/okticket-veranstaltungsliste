@@ -11,13 +11,13 @@ trait Altmuehlbuehne_OKTicket_Admin_Trait {
 
         wp_enqueue_style(
             'okticket-tabler-ui',
-            'https://cdn.jsdelivr.net/npm/@tabler/core@1.5.1/dist/css/tabler.min.css',
+            plugins_url('assets/vendor/tabler.min.css', self::PLUGIN_FILE),
             [],
             '1.5.1'
         );
         wp_enqueue_script(
             'okticket-tabler-ui',
-            'https://cdn.jsdelivr.net/npm/@tabler/core@1.5.1/dist/js/tabler.min.js',
+            plugins_url('assets/vendor/tabler.min.js', self::PLUGIN_FILE),
             [],
             '1.5.1',
             true
@@ -35,7 +35,7 @@ trait Altmuehlbuehne_OKTicket_Admin_Trait {
     public static function enqueue_frontend_grid(): void {
         wp_enqueue_style(
             'okticket-tabler-ui',
-            'https://cdn.jsdelivr.net/npm/@tabler/core@1.5.1/dist/css/tabler.min.css',
+            plugins_url('assets/vendor/tabler.min.css', self::PLUGIN_FILE),
             [],
             '1.5.1'
         );
@@ -160,6 +160,10 @@ trait Altmuehlbuehne_OKTicket_Admin_Trait {
             <?php elseif ($notice === 'missing') : ?>
                 <div class="notice notice-warning">
                     <p>Bitte einen API-Token eingeben.</p>
+                </div>
+            <?php elseif ($notice === 'token_storage_failed') : ?>
+                <div class="notice notice-error">
+                    <p>Der API-Token konnte nicht sicher gespeichert werden. Bitte wenden Sie sich an die Administration.</p>
                 </div>
             <?php elseif ($notice === 'token_deleted') : ?>
                 <div class="notice notice-success is-dismissible"><p>Der API-Token wurde gelöscht. Die Verbindung zu OKTicket ist getrennt.</p></div>
@@ -324,7 +328,9 @@ trait Altmuehlbuehne_OKTicket_Admin_Trait {
 
         if ($validation === 'valid') {
             if ($submitted_token !== '') {
-                update_option(self::OPTION_TOKEN, $submitted_token, false);
+                if (!self::store_token($submitted_token)) {
+                    self::redirect_with_notice('token_storage_failed', 'api');
+                }
             }
             self::redirect_with_notice('valid', 'api');
         }

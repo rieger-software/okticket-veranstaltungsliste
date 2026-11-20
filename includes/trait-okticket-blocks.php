@@ -212,7 +212,7 @@ trait Altmuehlbuehne_OKTicket_Blocks_Trait {
             'okticket-appointments-widget-block',
             plugins_url('assets/okticket-appointments-widget-block.js', self::PLUGIN_FILE),
             ['wp-blocks', 'wp-block-editor', 'wp-components', 'wp-element', 'wp-i18n', 'wp-server-side-render'],
-            file_exists($file) ? (string) filemtime($file) : '0.2.5',
+            file_exists($file) ? (string) filemtime($file) : '0.2.7',
             true
         );
 
@@ -226,6 +226,8 @@ trait Altmuehlbuehne_OKTicket_Blocks_Trait {
                 'limit' => ['type' => 'number', 'default' => 5],
                 'showAll' => ['type' => 'boolean', 'default' => false],
                 'showAvailability' => ['type' => 'boolean', 'default' => true],
+                'hidePast' => ['type' => 'boolean', 'default' => false],
+                'boldNext' => ['type' => 'boolean', 'default' => false],
             ],
         ]);
     }
@@ -266,6 +268,8 @@ trait Altmuehlbuehne_OKTicket_Blocks_Trait {
         $limit = isset($attributes['limit']) ? min(10, max(1, absint($attributes['limit']))) : 5;
         $show_all = !empty($attributes['showAll']);
         $show_availability = !empty($attributes['showAvailability']);
+        $hide_past = !empty($attributes['hidePast']);
+        $bold_next = !empty($attributes['boldNext']);
 
         if ($event_id <= 0 || self::get_token() === '') {
             return '';
@@ -294,6 +298,14 @@ trait Altmuehlbuehne_OKTicket_Blocks_Trait {
             }
             $appointments[] = ['event' => $event, 'details' => $details];
         }
+        $today = current_time('Y-m-d');
+        if ($hide_past) {
+            $appointments = array_values(array_filter($appointments, static function (array $appointment) use ($today): bool {
+                $date = (string) ($appointment['details']['Datum'] ?? $appointment['event']['datum'] ?? '');
+                $timestamp = strtotime($date);
+                return !$timestamp || wp_date('Y-m-d', $timestamp) >= $today;
+            }));
+        }
 
         usort($appointments, static function (array $a, array $b): int {
             return strtotime((string) ($a['details']['Datum'] ?? $a['event']['datum'] ?? '')) <=> strtotime((string) ($b['details']['Datum'] ?? $b['event']['datum'] ?? ''));
@@ -305,6 +317,17 @@ trait Altmuehlbuehne_OKTicket_Blocks_Trait {
         if (!$appointments) {
             return '';
         }
+        $next_appointment_index = null;
+        if ($bold_next) {
+            foreach ($appointments as $index => $appointment) {
+                $date = (string) ($appointment['details']['Datum'] ?? $appointment['event']['datum'] ?? '');
+                $timestamp = strtotime($date);
+                if (!$timestamp || wp_date('Y-m-d', $timestamp) >= $today) {
+                    $next_appointment_index = $index;
+                    break;
+                }
+            }
+        }
 
         ob_start();
         ?>
@@ -312,7 +335,7 @@ trait Altmuehlbuehne_OKTicket_Blocks_Trait {
             <?php if ($title !== '') : ?><h3 class="okticket-termin-widget__title"><?php echo esc_html($title); ?></h3><?php endif; ?>
             <div class="okticket-termin-widget__termine">
                 <ul>
-                    <?php foreach ($appointments as $appointment) : ?>
+                    <?php foreach ($appointments as $index => $appointment) : ?>
                         <?php
                         $details = $appointment['details'];
                         $event = $appointment['event'];
@@ -323,9 +346,11 @@ trait Altmuehlbuehne_OKTicket_Blocks_Trait {
                         $label = $timestamp ? wp_date('l, d.m.Y', $timestamp) : $date;
                         $traffic_light = self::get_traffic_light((int) ($event['free'] ?? 0), (int) ($event['total'] ?? 0));
                         ?>
-                        <li>
+                        <li<?php echo $index === $next_appointment_index ? ' class="okticket-termin-widget__termin--next"' : ''; ?>>
+                            <?php if ($index === $next_appointment_index) : ?><strong><?php endif; ?>
                             <?php echo esc_html($label . ($time !== '' ? ', ' . $time . ' Uhr' : '')); ?>
                             <?php if ($show_availability) : ?> <span class="<?php echo esc_attr($traffic_light['class']); ?>" title="<?php echo esc_attr($traffic_light['label']); ?>"><span class="okticket-veranstaltung__status-dot" aria-hidden="true">●</span><span class="screen-reader-text"><?php echo esc_html($traffic_light['label']); ?></span></span><?php endif; ?>
+                            <?php if ($index === $next_appointment_index) : ?></strong><?php endif; ?>
                         </li>
                     <?php endforeach; ?>
                 </ul>
