@@ -144,7 +144,12 @@ trait Altmuehlbuehne_OKTicket_Sync_Trait {
         return self::get_vvks();
     }
 
-    private static function sync_events(): bool {
+    /**
+     * Synchronizes the frequently changing event list. Scheduled runs only
+     * request details for previously unknown events; an administrator can
+     * explicitly request a complete detail refresh from the settings page.
+     */
+    private static function sync_events(bool $refresh_known_details = false): bool {
         $token = self::get_token();
 
         if ($token === '') {
@@ -161,7 +166,16 @@ trait Altmuehlbuehne_OKTicket_Sync_Trait {
             return false;
         }
 
-        $details_snapshot = [];
+        $stored_details = get_option(self::OPTION_EVENT_DETAILS_SNAPSHOT, []);
+        $details_snapshot = is_array($stored_details) ? $stored_details : [];
+        $current_event_ids = [];
+
+        foreach ($data['events'] as $event) {
+            $event_id = (int) ($event['event_id'] ?? 0);
+            if ($event_id > 0) {
+                $current_event_ids[$event_id] = true;
+            }
+        }
 
         foreach ($data['events'] as $event) {
             $event_id = (int) ($event['event_id'] ?? 0);
@@ -169,24 +183,22 @@ trait Altmuehlbuehne_OKTicket_Sync_Trait {
                 continue;
             }
 
-            $detail_response = wp_remote_post(self::EVENT_DETAILS_URL . rawurlencode((string) $event_id), [
-                'timeout' => 30,
-                'body' => ['token' => $token],
-            ]);
-            $details = is_wp_error($detail_response) ? null : json_decode(wp_remote_retrieve_body($detail_response), true);
+            $details = $details_snapshot[$event_id] ?? null;
+            if ($refresh_known_details || !is_array($details)) {
+                $details = self::fetch_event_details($event_id, $token);
+            }
 
-            if (wp_remote_retrieve_response_code($detail_response) === 200 && is_array($details) && (int) ($details['ID'] ?? 0) === $event_id) {
+            if (is_array($details)) {
                 $details_snapshot[$event_id] = $details;
 
                 $parent_id = (int) ($details['ParentID'] ?? 0);
-                if ($parent_id > 0 && $parent_id !== $event_id && !isset($details_snapshot[$parent_id])) {
-                    $parent_response = wp_remote_post(self::EVENT_DETAILS_URL . rawurlencode((string) $parent_id), [
-                        'timeout' => 30,
-                        'body' => ['token' => $token],
-                    ]);
-                    $parent_details = is_wp_error($parent_response) ? null : json_decode(wp_remote_retrieve_body($parent_response), true);
+                if ($parent_id > 0 && $parent_id !== $event_id && !isset($current_event_ids[$parent_id])) {
+                    $parent_details = $details_snapshot[$parent_id] ?? null;
+                    if ($refresh_known_details || !is_array($parent_details)) {
+                        $parent_details = self::fetch_event_details($parent_id, $token);
+                    }
 
-                    if (wp_remote_retrieve_response_code($parent_response) === 200 && is_array($parent_details) && (int) ($parent_details['ID'] ?? 0) === $parent_id) {
+                    if (is_array($parent_details)) {
                         $details_snapshot[$parent_id] = $parent_details;
                     }
                 }
@@ -198,6 +210,23 @@ trait Altmuehlbuehne_OKTicket_Sync_Trait {
         update_option(self::OPTION_LAST_SYNC, time(), false);
 
         return true;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private static function fetch_event_details(int $event_id, string $token): ?array {
+        $response = wp_remote_post(self::EVENT_DETAILS_URL . rawurlencode((string) $event_id), [
+            'timeout' => 30,
+            'body' => ['token' => $token],
+        ]);
+        $details = is_wp_error($response) ? null : json_decode(wp_remote_retrieve_body($response), true);
+
+        return wp_remote_retrieve_response_code($response) === 200
+            && is_array($details)
+            && (int) ($details['ID'] ?? 0) === $event_id
+            ? $details
+            : null;
     }
 
     /**

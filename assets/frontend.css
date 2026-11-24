@@ -1,0 +1,77 @@
+/* All public styles are deliberately confined to the plugin output. */
+.okticket-bootstrap,
+.okticket-bootstrap * { box-sizing: border-box; }
+
+.okticket-bootstrap .container-fluid { width: 100%; margin: 0 auto; padding-right: .75rem; padding-left: .75rem; }
+.okticket-bootstrap .row { display: flex; flex-wrap: wrap; margin-right: -.75rem; margin-left: -.75rem; }
+.okticket-bootstrap .col,
+.okticket-bootstrap .col-1,
+.okticket-bootstrap .col-5,
+.okticket-bootstrap .col-md-4,
+.okticket-bootstrap .col-md-6,
+.okticket-bootstrap .col-md-8,
+.okticket-bootstrap .col-md-12 { position: relative; width: 100%; min-width: 0; padding-right: .75rem; padding-left: .75rem; }
+.okticket-bootstrap .col { flex: 1 0 0%; }
+.okticket-bootstrap .col-1 { flex: 0 0 auto; width: 8.333333%; }
+.okticket-bootstrap .col-5 { flex: 0 0 auto; width: 41.666667%; }
+
+@media (min-width: 768px) {
+    .okticket-bootstrap .col-md-4 { flex: 0 0 auto; width: 33.333333%; }
+    .okticket-bootstrap .col-md-6 { flex: 0 0 auto; width: 50%; }
+    .okticket-bootstrap .col-md-8 { flex: 0 0 auto; width: 66.666667%; }
+    .okticket-bootstrap .col-md-12 { flex: 0 0 auto; width: 100%; }
+}
+
+.okticket-bootstrap .okticket-veranstaltung__termine ul { margin: 0; padding: 0; list-style: none; }
+.okticket-bootstrap .okticket-veranstaltung__termin { margin: 0 0 .5rem; }
+.okticket-bootstrap .okticket-veranstaltung__date { display: block; padding: .5rem .75rem; color: inherit; text-decoration: none; background: inherit; border: 1px solid #c9c9c9; border-radius: .4rem; box-shadow: none; transition: border-color .15s ease, background-color .15s ease; }
+.okticket-bootstrap .okticket-veranstaltung__date:hover,
+.okticket-bootstrap .okticket-veranstaltung__date:focus { color: inherit; text-decoration: none; background: rgba(0, 0, 0, .02); border-color: #999; }
+.okticket-bootstrap .okticket-veranstaltung__date-row { align-items: center; }
+.okticket-bootstrap .okticket-veranstaltung__date-full { font-weight: 700; }
+.okticket-bootstrap .okticket-veranstaltung__date-time-column { display: flex; justify-content: center; }
+.okticket-bootstrap .okticket-veranstaltung__date-time { display: inline-block; padding: 2px .55em; font-weight: bold; white-space: nowrap; background: rgba(0, 0, 0, .05); border-radius: .4rem; opacity: .75; }
+.okticket-bootstrap .okticket-veranstaltung__beschreibung { margin: 0 0 .5rem; line-height: 1.4; }
+.okticket-bootstrap .okticket-veranstaltung__langbeschreibung { padding-bottom: 10px; }
+.okticket-bootstrap .okticket-veranstaltung__titel { margin: 0 0 .35rem !important; font-size: 1.2em; font-weight: 700; }
+.okticket-bootstrap .okticket-veranstaltung__ort { margin: 0 0 1rem; font-size: .95em; }
+.okticket-bootstrap .okticket-veranstaltung__date-status { white-space: nowrap; }
+.okticket-bootstrap .okticket-veranstaltung__status-dot { display: inline; font-size: .85em; line-height: 1; background: none; }
+.okticket-bootstrap .okticket-veranstaltung__status--available .okticket-veranstaltung__status-dot { color: #198754; }
+.okticket-bootstrap .okticket-veranstaltung__status--few .okticket-veranstaltung__status-dot { color: #d97706; }
+.okticket-bootstrap .okticket-veranstaltung__status--critical .okticket-veranstaltung__status-dot { color: #dc3545; }
+.okticket-bootstrap .okticket-veranstaltung__status--sold-out .okticket-veranstaltung__status-dot { color: #6c757d; }
+.okticket-bootstrap .okticket-veranstaltung__date-chevron-column { display: flex; justify-content: flex-end; }
+.okticket-bootstrap .okticket-veranstaltung__date-chevron { font-size: 1.5em; line-height: 1; }
+.okticket-bootstrap .okticket-veranstaltung__vvks { margin-top: 1.25rem; }
+.okticket-bootstrap .okticket-veranstaltung__vvks ul { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; margin: 0; padding: 0; list-style: none; }
+.okticket-bootstrap .okticket-veranstaltung__vvk { margin: 0; padding: .75rem; border: 1px solid #c9c9c9; border-radius: .4rem; }
+.okticket-bootstrap .okticket-veranstaltungsuebersicht { width: 100%; }
+.okticket-bootstrap .searchItem { margin: 0 0 1.5rem; padding: 1rem; background: #fff; border: 1px solid #c9c9c9; border-radius: .4rem; }
+.okticket-bootstrap .okticket-veranstaltungsuebersicht__link { display: block; color: inherit; text-decoration: none; }
+.okticket-bootstrap .okticket-veranstaltungsuebersicht__link:hover,
+.okticket-bootstrap .okticket-veranstaltungsuebersicht__link:focus { color: inherit; text-decoration: none; }
+.okticket-bootstrap .okticket-veranstaltungsuebersicht__kopf { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 1rem; align-items: start; }
+.okticket-bootstrap .okticket-veranstaltungsuebersicht__kopf--ohne-bild { grid-template-columns: minmax(0, 1fr); }
+.okticket-bootstrap .okticket-veranstaltungsuebersicht__bild { display: block; width: 160px; height: 112px; object-fit: cover; }
+.okticket-bootstrap .okticket-veranstaltungsuebersicht__inhalt { min-width: 0; }
+.okticket-bootstrap .okticket-veranstaltungsuebersicht__titel { margin: 0 0 .35rem !important; font-size: 1.2em; font-weight: 700; }
+.okticket-bootstrap .okticket-veranstaltungsuebersicht__ort { margin: 0 0 1rem; font-size: .95em; }
+.okticket-bootstrap .okticket-veranstaltungsuebersicht__beschreibung { margin: 0; line-height: 1.4; }
+.okticket-bootstrap .okticket-veranstaltungsuebersicht__termine { margin-top: 1.25rem; }
+.okticket-bootstrap .okticket-veranstaltungsuebersicht__termine-titel { margin: 0 0 .5rem; font-size: 1em; font-weight: 700; }
+.okticket-bootstrap .okticket-veranstaltungsuebersicht__termine-liste { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem 1rem; margin: 0; padding: 0; list-style: none; }
+.okticket-bootstrap .okticket-veranstaltungsuebersicht__termin { margin: 0; padding: .35rem .5rem; font-weight: 600; background: rgba(0, 0, 0, .05); border-radius: .25rem; }
+.okticket-bootstrap .okticket-veranstaltungsuebersicht__weitere { color: inherit; font-weight: 400; background: transparent; }
+
+@media (max-width: 900px) { .okticket-bootstrap .okticket-veranstaltung__vvks ul { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 650px) {
+    .okticket-bootstrap .searchItem { padding: .75rem; }
+    .okticket-bootstrap .okticket-veranstaltungsuebersicht__kopf { grid-template-columns: 125px minmax(0, 1fr); gap: .75rem; }
+    .okticket-bootstrap .okticket-veranstaltungsuebersicht__bild { width: 125px; height: 88px; }
+    .okticket-bootstrap .okticket-veranstaltungsuebersicht__beschreibung { display: none; }
+    .okticket-bootstrap .okticket-veranstaltungsuebersicht__ort { margin-bottom: 0; }
+    .okticket-bootstrap .okticket-veranstaltungsuebersicht__termine-liste { grid-template-columns: 1fr; }
+    .okticket-bootstrap .okticket-veranstaltungsuebersicht__kopf--ohne-bild { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 500px) { .okticket-bootstrap .okticket-veranstaltung__vvks ul { grid-template-columns: 1fr; } }

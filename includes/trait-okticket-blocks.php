@@ -124,12 +124,10 @@ trait Altmuehlbuehne_OKTicket_Blocks_Trait {
             return '';
         }
 
-        return self::render_events_overview_shortcode([
-            'preview_config' => [
-                'event_ids' => $event_ids,
-                'fields' => $fields,
-                'version' => 2,
-            ],
+        return self::render_events_overview([
+            'event_ids' => $event_ids,
+            'fields' => $fields,
+            'version' => 2,
         ]);
     }
 
@@ -193,15 +191,13 @@ trait Altmuehlbuehne_OKTicket_Blocks_Trait {
             return '';
         }
 
-        return self::render_events_shortcode([
-            'preview_config' => [
-                'event_ids' => [$event_id],
-                'fields' => $fields,
-                'vvk_enabled' => $vvk_enabled,
-                'vvk_fields' => $vvk_fields,
-                'vvk_limit' => $vvk_limit,
-                'vvk_sort_by_venue_postcode' => $vvk_sort_by_venue_postcode,
-            ],
+        return self::render_events([
+            'event_ids' => [$event_id],
+            'fields' => $fields,
+            'vvk_enabled' => $vvk_enabled,
+            'vvk_fields' => $vvk_fields,
+            'vvk_limit' => $vvk_limit,
+            'vvk_sort_by_venue_postcode' => $vvk_sort_by_venue_postcode,
         ]);
     }
 
@@ -212,7 +208,7 @@ trait Altmuehlbuehne_OKTicket_Blocks_Trait {
             'okticket-appointments-widget-block',
             plugins_url('assets/okticket-appointments-widget-block.js', self::PLUGIN_FILE),
             ['wp-blocks', 'wp-block-editor', 'wp-components', 'wp-element', 'wp-i18n', 'wp-server-side-render'],
-            file_exists($file) ? (string) filemtime($file) : '0.2.7',
+            file_exists($file) ? (string) filemtime($file) : '0.2.4',
             true
         );
 
@@ -307,6 +303,7 @@ trait Altmuehlbuehne_OKTicket_Blocks_Trait {
             }));
         }
 
+
         usort($appointments, static function (array $a, array $b): int {
             return strtotime((string) ($a['details']['Datum'] ?? $a['event']['datum'] ?? '')) <=> strtotime((string) ($b['details']['Datum'] ?? $b['event']['datum'] ?? ''));
         });
@@ -328,6 +325,7 @@ trait Altmuehlbuehne_OKTicket_Blocks_Trait {
                 }
             }
         }
+
 
         ob_start();
         ?>
