@@ -1,10 +1,12 @@
 # OKTicket Veranstaltungsliste
 
-Mit diesem Plugin können Sie Veranstaltungen von OKTicket auf Ihrer WordPress-Website anzeigen – als Übersicht, als Detailansicht oder in einer Seitenleiste.
+Mit diesem Plugin können Sie Veranstaltungen von OKTicket auf Ihrer WordPress-Website anzeigen – als Übersicht, als Detailansicht oder in einer Seitenleiste. Dafür stehen Gutenberg-Blöcke, Einbindungen für Page Builder sowie ein Widget zur Verfügung.
 
 ## Grundprinzip in WordPress
 
-Die Inhalte werden mit WordPress-Blöcken eingefügt. Einen Block fügen Sie im Editor über das **+** oben links oder direkt im Inhalt ein. Die Einstellungen eines ausgewählten Blocks finden Sie rechts in der Seitenleiste. Ist sie nicht sichtbar, klicken Sie oben rechts auf das Symbol für die Einstellungen.
+Im WordPress-Block-Editor fügen Sie Inhalte über OKTicket-Blöcke ein. Einen Block fügen Sie im Editor über das **+** oben links oder direkt im Inhalt ein. Die Einstellungen eines ausgewählten Blocks finden Sie rechts in der Seitenleiste. Ist sie nicht sichtbar, klicken Sie oben rechts auf das Symbol für die Einstellungen.
+
+Für WPBakery, Elementor, Divi, den Classic Editor und andere Page Builder stehen zusätzlich kopierfertige Shortcodes bereit. Diese werden im Plugin unter **Einstellungen → OKTicket Einbindungen** verwaltet.
 
 Änderungen sind zunächst nur in der Editor-Vorschau sichtbar. Mit **Aktualisieren** speichern Sie eine bestehende Seite, mit **Veröffentlichen** machen Sie eine neue Seite öffentlich. Über **Vorschau** können Sie die Seite vor der Veröffentlichung in einem neuen Browser-Tab ansehen.
 
@@ -70,7 +72,38 @@ Im Bereich **„Vorverkaufsstellen“** können Sie:
 
 Bei aktivierter Sortierung werden die nächstgelegenen Vorverkaufsstellen zuerst gezeigt.
 
-## 4. Termine in einer Seitenleiste anzeigen
+## 4. Page Builder und Classic Editor verwenden
+
+Öffnen Sie **Einstellungen → OKTicket Einbindungen**, wenn Ihre Website keinen Gutenberg-Editor verwendet oder Sie eine Einbindung in einem Page Builder benötigen.
+
+### Detailseite einer Veranstaltungsreihe
+
+Für jede aktuell verfügbare Veranstaltungsreihe zeigt das Plugin automatisch einen eigenen Detail-Shortcode an. Sie müssen keine technische ID heraussuchen.
+
+1. Suchen Sie die gewünschte Veranstaltungsreihe in der Liste.
+2. Öffnen Sie **Anzeigeoptionen**.
+3. Wählen Sie, ob Bild, Titel, Kurzbeschreibung, Langbeschreibung, Ort und Termine gezeigt werden sollen.
+4. Optional aktivieren Sie Vorverkaufsstellen und legen die sichtbaren Angaben, Anzahl sowie Entfernungssortierung fest.
+5. Klicken Sie auf das Zwischenablage-Symbol und fügen Sie den Shortcode in das Shortcode-, Text- oder Code-Element Ihres Page Builders ein.
+
+Ein automatisch angebotener Shortcode sieht zum Beispiel so aus:
+
+```text
+[okticket_detail id="60277"]
+```
+
+### Veranstaltungsübersicht
+
+Eine Übersicht wird individuell angelegt, weil Sie selbst festlegen, welche Veranstaltung/en gemeinsam erscheinen sollen.
+
+1. Geben Sie der Übersicht eine verständliche Bezeichnung, zum Beispiel „Programm 2026“.
+2. Wählen Sie eine oder mehrere Veranstaltungsreihen aus.
+3. Legen Sie fest, ob Bild, Titel, Veranstaltungsort, Kurzbeschreibung und Termine erscheinen sollen.
+4. Klicken Sie auf **Übersicht anlegen** und kopieren Sie den erzeugten Shortcode.
+
+Über **Anzeigeoptionen** bei einer bestehenden Übersicht können Sie die sichtbaren Inhalte später jederzeit anpassen.
+
+## 5. Termine in einer Seitenleiste anzeigen
 
 Öffnen Sie **Design → Widgets** und wählen Sie die gewünschte Seitenleiste oder Footer-Spalte.
 
@@ -94,13 +127,13 @@ Die Ticket-Ampel wird als farbiger Punkt angezeigt:
 - Rot: nur noch sehr wenige Tickets verfügbar
 - Grau: ausverkauft
 
-## 5. Wenn eine Veranstaltung oder Änderung nicht sofort sichtbar ist
+## 6. Wenn eine Veranstaltung oder Änderung nicht sofort sichtbar ist
 
 Öffnen Sie **Einstellungen → OKTicket** und klicken Sie auf **„Daten jetzt aktualisieren“**. Laden Sie anschließend die betreffende Seite neu.
 
 Wenn Sie eine Änderung an einer Seite oder einem Widget gespeichert haben, aber noch die alte Darstellung sehen, leeren Sie bei Bedarf zusätzlich den Browser-Cache bzw. den Cache eines eventuell verwendeten Caching-Plugins.
 
-## 6. Updates installieren
+## 7. Updates installieren
 
 Wenn in der WordPress-Pluginübersicht ein Update für **OKTicket Veranstaltungsliste** angezeigt wird, können Sie es dort wie jedes andere Plugin-Update installieren.
 

@@ -5,7 +5,7 @@ trait Altmuehlbuehne_OKTicket_Admin_Trait {
     public static function enqueue_admin_assets(): void {
         $page = isset($_GET['page']) ? sanitize_key(wp_unslash($_GET['page'])) : '';
 
-        if (!in_array($page, ['okticket-settings', 'okticket-anleitung'], true)) {
+        if (!in_array($page, ['okticket-settings', 'okticket-anleitung', 'okticket-einbindungen'], true)) {
             return;
         }
 
@@ -35,9 +35,10 @@ trait Altmuehlbuehne_OKTicket_Admin_Trait {
 
     public static function add_plugin_action_links(array $links): array {
         $settings_link = '<a href="' . esc_url(admin_url('admin.php?page=okticket-settings')) . '">Einstellungen</a>';
+        $embeds_link = '<a href="' . esc_url(admin_url('options-general.php?page=okticket-einbindungen')) . '">Einbindungen</a>';
         $details_link = '<a href="' . esc_url(self_admin_url('plugin-install.php?tab=plugin-information&plugin=okticket-veranstaltungsliste&TB_iframe=true&width=772&height=865')) . '" class="thickbox open-plugin-details-modal" aria-label="Details zu OKTicket Veranstaltungsliste anzeigen">Details</a>';
         $help_link = '<a href="' . esc_url(admin_url('admin.php?page=okticket-anleitung&TB_iframe=true&width=900&height=800')) . '" class="thickbox" aria-label="Anleitung für OKTicket Veranstaltungsliste öffnen">Anleitung</a>';
-        array_unshift($links, $settings_link, $details_link, $help_link);
+        array_unshift($links, $settings_link, $embeds_link, $details_link, $help_link);
 
         return $links;
     }
@@ -94,7 +95,25 @@ trait Altmuehlbuehne_OKTicket_Admin_Trait {
             </table>
             <p>Der Block zeigt im Editor eine Vorschau. Änderungen speichern oder aktualisieren Sie anschließend wie gewohnt mit dem WordPress-Button <strong>Aktualisieren</strong> bzw. <strong>Veröffentlichen</strong>.</p>
 
-            <h2>5. Das Widget „OKTicket Termine“ verwenden</h2>
+            <h2>5. Page Builder und Classic Editor</h2>
+            <p>Wenn Ihre Website keinen Gutenberg-Editor verwendet, öffnen Sie <strong>Einstellungen → OKTicket Einbindungen</strong>. Diese Einbindungen funktionieren beispielsweise in WPBakery, Elementor, Divi und dem Classic Editor.</p>
+            <h3>Detailseite einfügen</h3>
+            <ol>
+                <li>Suchen Sie die gewünschte Veranstaltungsreihe in der Liste.</li>
+                <li>Wählen Sie bei <strong>Anzeigeoptionen</strong>, ob Bild, Titel, Beschreibungen, Ort und Termine erscheinen sollen.</li>
+                <li>Aktivieren Sie bei Bedarf Vorverkaufsstellen und legen Sie deren Angaben, Anzahl und Entfernungssortierung fest.</li>
+                <li>Kopieren Sie den Shortcode über das Zwischenablage-Symbol und fügen Sie ihn im gewünschten Page-Builder-Element ein.</li>
+            </ol>
+            <p>Für jede verfügbare Veranstaltungsreihe wird der Detail-Shortcode automatisch angeboten. Sie müssen keine technische Veranstaltungs-ID suchen oder selbst eintragen.</p>
+            <h3>Übersicht einfügen</h3>
+            <ol>
+                <li>Legen Sie unter <strong>Veranstaltungsübersicht</strong> eine neue Übersicht an.</li>
+                <li>Wählen Sie die Veranstaltung/en aus, die gemeinsam gezeigt werden sollen.</li>
+                <li>Wählen Sie Bild, Titel, Veranstaltungsort, Kurzbeschreibung und Termine nach Wunsch aus.</li>
+                <li>Kopieren Sie den erzeugten Shortcode. Bereits angelegte Übersichten können Sie dort auch später über <strong>Anzeigeoptionen</strong> anpassen.</li>
+            </ol>
+
+            <h2>6. Das Widget „OKTicket Termine“ verwenden</h2>
             <p>Das Widget eignet sich für eine Seitenleiste, den Footer oder andere Widget-Bereiche. In klassischen WordPress-Themes öffnen Sie dazu <strong>Design → Widgets</strong>. Bei einem Block-Theme öffnen Sie den Website-Editor unter <strong>Design → Editor</strong> und bearbeiten den gewünschten Template-Bereich.</p>
             <ol>
                 <li>Klicken Sie im gewünschten Widget-Bereich auf das Plus-Symbol.</li>
@@ -105,11 +124,11 @@ trait Altmuehlbuehne_OKTicket_Admin_Trait {
             </ol>
             <p>Optional kann der nächste Termin hervorgehoben oder die vollständige Terminliste angezeigt werden. Das Widget verwendet denselben lokal gespeicherten Datenbestand wie die OKTicket-Blöcke.</p>
 
-            <h2>6. Aktualisierung und Caching</h2>
+            <h2>7. Aktualisierung und Caching</h2>
             <p>Veranstaltungsdaten werden lokal gespeichert. Die automatische Aktualisierung erfolgt alle 15 Minuten; Vorverkaufsstellen werden täglich aktualisiert. Bei einer nicht erreichbaren API bleibt der zuletzt erfolgreich gespeicherte Datenstand sichtbar.</p>
             <p>Bei zusätzlichem Seiten-, Hosting- oder CDN-Cache sollte die Cache-Laufzeit höchstens <strong>15 Minuten</strong> betragen. Sonst können neue Termine oder Ticketstände erst verspätet sichtbar werden.</p>
 
-            <h2>7. Wenn etwas nicht angezeigt wird</h2>
+            <h2>8. Wenn etwas nicht angezeigt wird</h2>
             <ul>
                 <li>Prüfen Sie unter <strong>Einstellungen → OKTicket</strong>, ob die API-Verbindung erreichbar ist.</li>
                 <li>Starten Sie eine manuelle Aktualisierung der Daten.</li>

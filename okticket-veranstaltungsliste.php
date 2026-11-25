@@ -2,7 +2,7 @@
 /**
  * Plugin Name: OKTicket Veranstaltungsliste
  * Description: Ruft Veranstaltungsdaten lesend aus der OKTicket-API ab.
- * Version: 0.3.4
+ * Version: 0.3.7
  * Author: okticket.de
  * Update URI: https://github.com/rieger-software/okticket-veranstaltungsliste/
  * Requires at least: 6.4
@@ -20,6 +20,7 @@ require_once __DIR__ . '/includes/trait-okticket-admin.php';
 require_once __DIR__ . '/includes/trait-okticket-sync.php';
 require_once __DIR__ . '/includes/trait-okticket-frontend.php';
 require_once __DIR__ . '/includes/trait-okticket-rest.php';
+require_once __DIR__ . '/includes/trait-okticket-shortcodes.php';
 
 final class Altmuehlbuehne_OKTicket_Veranstaltungsliste {
     use Altmuehlbuehne_OKTicket_Cron_Trait;
@@ -29,6 +30,7 @@ final class Altmuehlbuehne_OKTicket_Veranstaltungsliste {
     use Altmuehlbuehne_OKTicket_Sync_Trait;
     use Altmuehlbuehne_OKTicket_Frontend_Trait;
     use Altmuehlbuehne_OKTicket_Rest_Trait;
+    use Altmuehlbuehne_OKTicket_Shortcodes_Trait;
 
     private const OPTION_TOKEN = 'altmuehlbuehne_okticket_api_token';
     private const OPTION_EVENTS_SNAPSHOT = 'altmuehlbuehne_okticket_events_snapshot';
@@ -37,6 +39,8 @@ final class Altmuehlbuehne_OKTicket_Veranstaltungsliste {
     private const OPTION_VVKS_SNAPSHOT = 'altmuehlbuehne_okticket_vvks_snapshot';
     private const OPTION_VVKS_BY_PLZ_SNAPSHOT = 'altmuehlbuehne_okticket_vvks_by_plz_snapshot';
     private const OPTION_VVKS_LAST_SYNC = 'altmuehlbuehne_okticket_vvks_last_sync';
+    private const OPTION_OVERVIEW_EMBEDS = 'altmuehlbuehne_okticket_overview_embeds';
+    private const OPTION_DETAIL_EMBED_SETTINGS = 'altmuehlbuehne_okticket_detail_embed_settings';
     private const API_URL = 'https://api.okticket.de/statistik/live/events';
     private const EVENT_DETAILS_URL = 'https://api.okticket.de/statistik/live/eventDetails/';
     private const VVKS_URL = 'https://api.okticket.de/statistik/live/vvks';
@@ -58,10 +62,16 @@ final class Altmuehlbuehne_OKTicket_Veranstaltungsliste {
         add_action('widgets_init', [self::class, 'register_appointments_legacy_widget']);
         add_action('enqueue_block_editor_assets', [self::class, 'enqueue_block_editor_data']);
         add_action('admin_menu', [self::class, 'add_settings_page']);
+        add_action('admin_menu', [self::class, 'add_embed_page']);
         add_action('admin_enqueue_scripts', [self::class, 'enqueue_admin_assets']);
         add_action('admin_post_altmuehlbuehne_okticket_save_token', [self::class, 'save_token']);
         add_action('admin_post_altmuehlbuehne_okticket_delete_token', [self::class, 'delete_token']);
         add_action('admin_post_altmuehlbuehne_okticket_refresh_events', [self::class, 'refresh_events']);
+        add_action('admin_post_altmuehlbuehne_okticket_create_embed', [self::class, 'create_embed']);
+        add_action('admin_post_altmuehlbuehne_okticket_delete_embed', [self::class, 'delete_embed']);
+        add_action('admin_post_altmuehlbuehne_okticket_save_detail_embed_settings', [self::class, 'save_detail_embed_settings']);
+        add_action('admin_post_altmuehlbuehne_okticket_save_overview_embed_settings', [self::class, 'save_overview_embed_settings']);
+        add_action('init', [self::class, 'register_shortcodes']);
         add_action('wp_enqueue_scripts', [self::class, 'enqueue_frontend_grid']);
         add_action('rest_api_init', [self::class, 'register_rest_routes']);
         add_filter('rest_pre_serve_request', [self::class, 'serve_pretty_test_json'], 10, 4);

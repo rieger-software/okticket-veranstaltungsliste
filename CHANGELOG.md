@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.3.7 – 2026-11-25
+
+### Hinzugefügt
+
+- Anzeigeoptionen für Detail- und Übersichts-Shortcodes, einschließlich Vorverkaufsstellen-Optionen bei Detailseiten.
+- Die integrierte Anleitung beschreibt die Einbindungen und ihre Anzeigeoptionen.
+
+## 0.3.6 – 2026-11-24
+
+### Geändert
+
+- Detail-Shortcodes werden für alle verfügbaren Veranstaltungsreihen automatisch bereitgestellt; nur Übersichten werden weiterhin individuell angelegt.
+
+## 0.3.5 – 2026-11-24
+
+### Hinzugefügt
+
+- Einbindungen für Page Builder und den Classic Editor: Detailseiten und Übersichten können als kopierfertige Shortcodes angelegt werden.
+
 ## 0.3.4 – 2026-11-24
 
 ### Geändert
